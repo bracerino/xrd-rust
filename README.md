@@ -1,5 +1,5 @@
 # xrd_rust
-Compute XRD patterns using the pymatgen XRDCalculator, with performance-critical components rewritten in Rust to achieve a 5–10× speedup.
+Compute XRD patterns using the pymatgen XRDCalculator, with performance-critical components rewritten in Rust to achieve on average⚡5 - 10× speedup. More peaks and more atoms in your structure, more speedup. 
 
 ## How to install it
 Select the version depending on your Python version and Linux/Mac (Python Version 3.13 currently not supported).
