@@ -1,0 +1,18 @@
+[package]
+name = "xrd_rust_accelerator"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "xrd_rust_accelerator"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.20", features = ["extension-module"] }
+numpy = "0.20"
+ndarray = "0.15"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
