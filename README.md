@@ -3,6 +3,6 @@ Compute XRD patterns using the pymatgen XRDCalculator, with performance-critical
 
 ## How to install it
 Write into console:
-pip install xrd-rust-calculator
+pip install xrd-rust
 
  
