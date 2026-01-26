@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "xrd-rust-calculator"
 version = "0.1.0"
-description = "Fast XRD pattern calculator with Rust acceleration (5-10x faster)"
+description = "Fast XRD pattern calculator with Rust acceleration (5-10x faster than original pymatgen implementation)"
 authors = [{name = "Miroslav Lebeda", email = "lebedmi2@cvut.cz"}]
 readme = "README.md"
 requires-python = ">=3.8"
