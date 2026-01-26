@@ -3,8 +3,8 @@ requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "xrd-rust-calculator"
-version = "0.1.0"
+name = "xrd-rust"
+version = "0.2.0"
 description = "Fast XRD pattern calculator with Rust acceleration (5-10x faster than original pymatgen implementation)"
 authors = [{name = "Miroslav Lebeda", email = "lebedmi2@cvut.cz"}]
 readme = "README.md"
@@ -31,9 +31,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/xrd-rust-calculator"
-Repository = "https://github.com/yourusername/xrd-rust-calculator"
-Issues = "https://github.com/yourusername/xrd-rust-calculator/issues"
+Homepage = "https://github.com/bracerino/xrd-rust"
+Repository = "https://github.com/bracerino/xrd-rust"
+Issues = "https://github.com/bracerino/xrd-rust/issues"
 
 [tool.maturin]
 python-source = "python"
