@@ -1,5 +1,9 @@
 # XRD-Rust
-Compute X-ray diffraction (XRD) patterns using modified [pymatgen’s XRDCalculator](https://pymatgen.org/pymatgen.analysis.diffraction.html), with the performance-critical routines reimplemented in Rust, achieving an average ⚡ 5–6× speedup. The larger and more complex your structure (more peaks and atoms), the greater the speedup gains.
+Compute powder X-ray diffraction (XRD) patterns using modified [pymatgen’s XRDCalculator](https://pymatgen.org/pymatgen.analysis.diffraction.html), with the performance-critical routines reimplemented in Rust, achieving an average ⚡ 5–6× speedup. The larger and more complex your structure (more peaks and atoms), the greater the speedup gains.
+
+The XRD-Rust follows the same notation as the XRDCalculator, with the only change being the renamed class, XRDCalculatorRust. Due to this, it can be easily implemented into existing workflows that use the original pymatgen package for powder XRD pattern calculations. Simply import the XRD-Rust package and replace the class name (see also example below).
+
+
 
 Benchmark results on two large crystallographic datasets demonstrate the following acceleration:
 
@@ -18,4 +22,21 @@ If you like the package, please cite:
 Write into console:
 pip install xrd-rust
 
- 
+## Example: Calculate a powder XRD pattern
+
+```python
+from pymatgen.core import Structure
+from xrd_rust_accelerator import XRDCalculatorRust
+
+# Load structure and calculate powder XRD pattern
+structure = Structure.from_file("structure.cif")
+calc = XRDCalculatorRust(wavelength="Cuka")
+pattern = calc.get_pattern(structure, scaled=False, two_theta_range=(5, 70))
+
+# Save to file
+with open("xrd_pattern.csv", 'w') as f:
+    f.write("2theta,intensity,hkl\n")
+    for i in range(len(pattern.x)):
+        hkl = str([tuple(h['hkl']) for h in pattern.hkls[i]])
+        f.write(f"{pattern.x[i]},{pattern.y[i]},{hkl}\n")
+```
