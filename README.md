@@ -12,7 +12,7 @@ Benchmark results on two large crystallographic datasets demonstrate the followi
 - MC3D (33 142 structures): ⚡ 4.7 ± 1.6× average speedup, up to 25× faster (34.9 s → 1.4 s)
 
 Full benchmarking details are available at:
-https://arxiv.org/abs/2602.11709
+📖 https://arxiv.org/abs/2602.11709
 
 If you like the package, please cite:
 - For XRD-Rust (arXiv): LEBEDA, Miroslav, et al. Rust-accelerated powder X-ray diffraction simulation for high-throughput and machine-learning-driven materials science. arXiv preprint arXiv:2602.11709, 2026.  
