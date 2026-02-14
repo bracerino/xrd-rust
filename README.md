@@ -21,7 +21,7 @@ If you like the package, please cite:
 ## How to install it (tested on Python 3.12)
 pip install xrd-rust
 
-## Example: Calculate a powder XRD pattern
+## Example: Calculate powder XRD pattern
 
 ```python
 from pymatgen.core import Structure
