@@ -5,7 +5,7 @@ The XRD-Rust follows the same notation as the XRDCalculator, with the only chang
 
 
 
-Benchmark results on two large crystallographic datasets demonstrate the following acceleration:
+Benchmark results (2θ range = 2–60° (Mo radiation)) on two large crystallographic datasets demonstrate the following acceleration:
 
 - COD (515 181 structures): ⚡ 6.1 ± 4.6× average speedup, up to 719× faster (1437 min (original pymatgen implementation) → 2 min (Rust-accelerated))
 
