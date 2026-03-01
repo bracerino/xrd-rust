@@ -18,7 +18,7 @@ If you like the package, please cite:
 - For XRD-Rust (arXiv): LEBEDA, Miroslav, et al. Rust-accelerated powder X-ray diffraction simulation for high-throughput and machine-learning-driven materials science. arXiv preprint arXiv:2602.11709, 2026.  
 - For pymatgen: ONG, Shyue Ping, et al. Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis. Computational Materials Science, 2013, 68: 314-319.  
 
-## How to install it (tested on Python 3.12)
+## How to install it (tested on Python 3.12 (version 3.13 currently not supported)
 pip install xrd-rust
 
 ## Example: Calculate powder XRD pattern
