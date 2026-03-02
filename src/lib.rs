@@ -22,7 +22,7 @@ fn is_permutation(hkl1: &[i32], hkl2: &[i32]) -> bool {
 /// Get unique families of Miller indices
 /// Returns a dict with TUPLES as keys (Python requires hashable keys)
 #[pyfunction]
-fn get_unique_families_rust(py: Python, hkls: Vec<Vec<i32>>) -> PyResult<PyObject> {
+fn get_unique_families_rust(py: Python, hkls: Vec<Vec<i32>>) -> PyResult<Bound<'_, PyDict>> {
     let mut unique: HashMap<Vec<i32>, Vec<Vec<i32>>> = HashMap::new();
 
     for hkl1 in hkls {
@@ -41,15 +41,15 @@ fn get_unique_families_rust(py: Python, hkls: Vec<Vec<i32>>) -> PyResult<PyObjec
         }
     }
 
-    let result = PyDict::new(py);
+    let result = PyDict::new_bound(py);
     for (_, family) in unique {
         if let Some(max_hkl) = family.iter().max() {
-            let tuple = PyTuple::new(py, max_hkl.iter());
+            let tuple = PyTuple::new_bound(py, max_hkl.iter());
             result.set_item(tuple, family.len())?;
         }
     }
 
-    Ok(result.into())
+    Ok(result.into_py(py))
 }
 
 /// Calculate atomic scattering factor
@@ -250,7 +250,7 @@ fn normalize_intensities(intensities: Vec<f64>, max_value: f64) -> PyResult<Vec<
 
 /// Python module definition
 #[pymodule]
-fn xrd_rust_accelerator(_py: Python, m: &PyModule) -> PyResult<()> {
+fn xrd_rust_accelerator(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_unique_families_rust, m)?)?;
     m.add_function(wrap_pyfunction!(calculate_xrd_intensities, m)?)?;
     m.add_function(wrap_pyfunction!(merge_peaks, m)?)?;
