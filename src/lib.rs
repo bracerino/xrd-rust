@@ -44,7 +44,7 @@ fn get_unique_families_rust(py: Python, hkls: Vec<Vec<i32>>) -> PyResult<Bound<'
     let result = PyDict::new(py);
     for (_, family) in unique {
         if let Some(max_hkl) = family.iter().max() {
-            let tuple = PyTuple::new(py, max_hkl.iter());
+            let tuple = PyTuple::new(py, max_hkl.iter())?;
             result.set_item(tuple, family.len())?;
         }
     }
