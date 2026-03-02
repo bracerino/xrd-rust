@@ -1,9 +1,9 @@
 from pymatgen.core import Structure
-from xrd_rust_accelerator import XRDCalculatorRust
+from xrd_rust_calculator import XRDCalculatorRust
 
 # Load structure and calculate powder XRD pattern
 structure = Structure.from_file("structure.cif")
-calc = XRDCalculatorRust(wavelength="Cuka")
+calc = XRDCalculatorRust(wavelength="CuKa")
 pattern = calc.get_pattern(structure, scaled=False, two_theta_range=(5, 70))
 
 # Save to file
