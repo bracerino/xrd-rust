@@ -1,5 +1,3 @@
-"""XRD Calculator with Rust acceleration."""
-
 from __future__ import annotations
 
 import math
@@ -18,6 +16,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 try:
     from .xrd_rust_accelerator import (
         get_unique_families_rust,
+        generate_hkl_points,
         calculate_xrd_intensities,
         merge_peaks,
         normalize_intensities,
@@ -87,7 +86,7 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
         if not HAS_RUST:
             raise ImportError(
                 "Rust accelerator not installed. Install with:\n"
-                "  cd xrd_rust_accelerator && maturin develop --release"
+                "  maturin develop --release"
             )
 
     def get_pattern(self, structure: Structure, scaled=True, two_theta_range=(0, 90)):
@@ -106,18 +105,13 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
         )
 
         recip_lattice = lattice.reciprocal_lattice_crystallographic
-        recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
-        if min_r:
-            recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
+        recip_matrix = recip_lattice.matrix.tolist()
+        recip_pts_rust = generate_hkl_points(recip_matrix, max_r, min_r)
 
         _zs = []
         _coeffs = []
         _occus = []
         _dw_factors = []
-
-        # SoA: three flat contiguous arrays instead of list of [x, y, z] lists
-        # This allows the CPU to load all x-values, y-values, z-values
-        # in contiguous cache lines — much more efficient for SIMD and prefetching
         _frac_coords_x = []
         _frac_coords_y = []
         _frac_coords_z = []
@@ -133,7 +127,6 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
                     )
                 _coeffs.append(c)
                 _dw_factors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                # SoA: store x, y, z in separate flat arrays
                 _frac_coords_x.append(float(site.frac_coords[0]))
                 _frac_coords_y.append(float(site.frac_coords[1]))
                 _frac_coords_z.append(float(site.frac_coords[2]))
@@ -143,10 +136,7 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
         g_hkls = []
         d_hkls_list = []
 
-        for hkl, g_hkl, ind, _ in sorted(
-            recip_pts,
-            key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])
-        ):
+        for hkl, g_hkl in recip_pts_rust:
             hkl_rounded = [float(round(i)) for i in hkl]
             hkls.append(hkl_rounded)
             g_hkls.append(float(g_hkl))

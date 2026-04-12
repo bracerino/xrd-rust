@@ -5,7 +5,6 @@ use std::f64::consts::PI;
 use rayon::prelude::*;
 use wide::f64x4;
 
-/// Check if two HKL indices are permutations of each other
 #[inline]
 fn is_permutation(hkl1: &[i32], hkl2: &[i32]) -> bool {
     if hkl1.len() != hkl2.len() {
@@ -18,7 +17,6 @@ fn is_permutation(hkl1: &[i32], hkl2: &[i32]) -> bool {
     h1 == h2
 }
 
-/// Get unique families of Miller indices
 #[pyfunction]
 fn get_unique_families_rust(py: Python, hkls: Vec<Vec<i32>>) -> PyResult<Bound<'_, PyDict>> {
     let mut unique: HashMap<Vec<i32>, Vec<Vec<i32>>> = HashMap::new();
@@ -45,7 +43,65 @@ fn get_unique_families_rust(py: Python, hkls: Vec<Vec<i32>>) -> PyResult<Bound<'
     Ok(result)
 }
 
-/// Calculate atomic scattering factor
+#[pyfunction]
+fn generate_hkl_points(
+    recip_matrix: Vec<Vec<f64>>,
+    max_r: f64,
+    min_r: f64,
+) -> PyResult<Vec<(Vec<f64>, f64)>> {
+    let a_star = (recip_matrix[0][0].powi(2)
+                + recip_matrix[0][1].powi(2)
+                + recip_matrix[0][2].powi(2)).sqrt();
+    let b_star = (recip_matrix[1][0].powi(2)
+                + recip_matrix[1][1].powi(2)
+                + recip_matrix[1][2].powi(2)).sqrt();
+    let c_star = (recip_matrix[2][0].powi(2)
+                + recip_matrix[2][1].powi(2)
+                + recip_matrix[2][2].powi(2)).sqrt();
+
+    let max_h = if a_star > 0.0 { (max_r / a_star).ceil() as i32 + 1 } else { 1 };
+    let max_k = if b_star > 0.0 { (max_r / b_star).ceil() as i32 + 1 } else { 1 };
+    let max_l = if c_star > 0.0 { (max_r / c_star).ceil() as i32 + 1 } else { 1 };
+
+    let mut points: Vec<(Vec<f64>, f64)> = Vec::new();
+
+    for h in -max_h..=max_h {
+        for k in -max_k..=max_k {
+            for l in -max_l..=max_l {
+                if h == 0 && k == 0 && l == 0 {
+                    continue;
+                }
+
+                let gx = h as f64 * recip_matrix[0][0]
+                       + k as f64 * recip_matrix[1][0]
+                       + l as f64 * recip_matrix[2][0];
+                let gy = h as f64 * recip_matrix[0][1]
+                       + k as f64 * recip_matrix[1][1]
+                       + l as f64 * recip_matrix[2][1];
+                let gz = h as f64 * recip_matrix[0][2]
+                       + k as f64 * recip_matrix[1][2]
+                       + l as f64 * recip_matrix[2][2];
+
+                let g_hkl = (gx * gx + gy * gy + gz * gz).sqrt();
+
+                if g_hkl >= min_r && g_hkl <= max_r {
+                    points.push((vec![h as f64, k as f64, l as f64], g_hkl));
+                }
+            }
+        }
+    }
+
+    points.sort_by(|a, b| {
+        a.1.partial_cmp(&b.1)
+            .unwrap_or(std::cmp::Ordering::Equal)
+            .then_with(|| (-a.0[0] as i64).cmp(&(-b.0[0] as i64)))
+            .then_with(|| (-a.0[1] as i64).cmp(&(-b.0[1] as i64)))
+            .then_with(|| (-a.0[2] as i64).cmp(&(-b.0[2] as i64)))
+    });
+
+    Ok(points)
+}
+
 #[inline]
 fn calculate_scattering_factor(z: i32, s_squared: f64, coeffs: &[[f64; 2]]) -> f64 {
     let mut sum = 0.0;
@@ -54,7 +110,6 @@ fn calculate_scattering_factor(z: i32, s_squared: f64, coeffs: &[[f64; 2]]) -> f
     }
     z as f64 - 41.78214 * s_squared * sum
 }
-
 
 #[inline]
 fn calculate_structure_factor_scalar_soa(
@@ -82,7 +137,6 @@ fn calculate_structure_factor_scalar_soa(
     (real_part, imag_part)
 }
 
-/// SIMD
 fn calculate_structure_factor_simd_soa(
     hkl: &[f64],
     xs: &[f64],
@@ -106,7 +160,6 @@ fn calculate_structure_factor_simd_soa(
     for chunk in 0..chunks {
         let b = chunk * 4;
 
-
         let fx = f64x4::new([xs[b], xs[b+1], xs[b+2], xs[b+3]]);
         let fy = f64x4::new([ys[b], ys[b+1], ys[b+2], ys[b+3]]);
         let fz = f64x4::new([zs[b], zs[b+1], zs[b+2], zs[b+3]]);
@@ -128,8 +181,6 @@ fn calculate_structure_factor_simd_soa(
         ]);
 
         let factor = sf * occ * dw;
-
-        // SIMD
         real_sum += factor * angle.cos();
         imag_sum += factor * angle.sin();
     }
@@ -148,7 +199,6 @@ fn calculate_structure_factor_simd_soa(
     (real, imag)
 }
 
-/// Calculate XRD intensities for all HKL reflections
 #[pyfunction]
 fn calculate_xrd_intensities(
     hkls: Vec<Vec<f64>>,
@@ -166,24 +216,24 @@ fn calculate_xrd_intensities(
     use_simd: bool,
 ) -> PyResult<Vec<(f64, f64)>> {
 
-    let frac_coords_x    = std::sync::Arc::new(frac_coords_x);
-    let frac_coords_y    = std::sync::Arc::new(frac_coords_y);
-    let frac_coords_z    = std::sync::Arc::new(frac_coords_z);
-    let atomic_numbers   = std::sync::Arc::new(atomic_numbers);
+    let frac_coords_x     = std::sync::Arc::new(frac_coords_x);
+    let frac_coords_y     = std::sync::Arc::new(frac_coords_y);
+    let frac_coords_z     = std::sync::Arc::new(frac_coords_z);
+    let atomic_numbers    = std::sync::Arc::new(atomic_numbers);
     let scattering_coeffs = std::sync::Arc::new(scattering_coeffs);
-    let occupancies      = std::sync::Arc::new(occupancies);
-    let dw_factors       = std::sync::Arc::new(dw_factors);
-    let g_hkls           = std::sync::Arc::new(g_hkls);
+    let occupancies       = std::sync::Arc::new(occupancies);
+    let dw_factors        = std::sync::Arc::new(dw_factors);
+    let g_hkls            = std::sync::Arc::new(g_hkls);
 
     let compute = {
-        let frac_coords_x    = std::sync::Arc::clone(&frac_coords_x);
-        let frac_coords_y    = std::sync::Arc::clone(&frac_coords_y);
-        let frac_coords_z    = std::sync::Arc::clone(&frac_coords_z);
-        let atomic_numbers   = std::sync::Arc::clone(&atomic_numbers);
+        let frac_coords_x     = std::sync::Arc::clone(&frac_coords_x);
+        let frac_coords_y     = std::sync::Arc::clone(&frac_coords_y);
+        let frac_coords_z     = std::sync::Arc::clone(&frac_coords_z);
+        let atomic_numbers    = std::sync::Arc::clone(&atomic_numbers);
         let scattering_coeffs = std::sync::Arc::clone(&scattering_coeffs);
-        let occupancies      = std::sync::Arc::clone(&occupancies);
-        let dw_factors       = std::sync::Arc::clone(&dw_factors);
-        let g_hkls           = std::sync::Arc::clone(&g_hkls);
+        let occupancies       = std::sync::Arc::clone(&occupancies);
+        let dw_factors        = std::sync::Arc::clone(&dw_factors);
+        let g_hkls            = std::sync::Arc::clone(&g_hkls);
 
         move |idx: usize, hkl: &Vec<f64>| -> (f64, f64) {
             let g_hkl = g_hkls[idx];
@@ -192,11 +242,10 @@ fn calculate_xrd_intensities(
             let sin_theta = wavelength * g_hkl / 2.0;
             if sin_theta > 1.0 { return (0.0, 0.0); }
 
-            let theta    = sin_theta.asin();
-            let s        = g_hkl / 2.0;
+            let theta     = sin_theta.asin();
+            let s         = g_hkl / 2.0;
             let s_squared = s * s;
 
-            // Atomic scattering factors
             let mut scattering_factors = Vec::with_capacity(atomic_numbers.len());
             for i in 0..atomic_numbers.len() {
                 let coeffs: Vec<[f64; 2]> = scattering_coeffs[i]
@@ -208,13 +257,11 @@ fn calculate_xrd_intensities(
                 );
             }
 
-            // Debye-Waller corrections
             let dw_corrections: Vec<f64> = dw_factors
                 .iter()
                 .map(|&dw| (-dw * s_squared).exp())
                 .collect();
 
-            // Structure factor — SoA paths for both scalar and SIMD
             let (real, imag) = if use_simd {
                 calculate_structure_factor_simd_soa(
                     hkl,
@@ -237,10 +284,10 @@ fn calculate_xrd_intensities(
                 )
             };
 
-            let intensity    = real * real + imag * imag;
-            let cos_theta    = theta.cos();
-            let sin_theta_sq = theta.sin().powi(2);
-            let two_theta    = 2.0 * theta;
+            let intensity      = real * real + imag * imag;
+            let cos_theta      = theta.cos();
+            let sin_theta_sq   = theta.sin().powi(2);
+            let two_theta      = 2.0 * theta;
             let lorentz_factor = (1.0 + two_theta.cos().powi(2))
                                / (sin_theta_sq * cos_theta);
 
@@ -269,7 +316,6 @@ fn calculate_xrd_intensities(
     Ok(results)
 }
 
-/// Fast peak merging based on two-theta tolerance
 #[pyfunction]
 fn merge_peaks(
     two_thetas: Vec<f64>,
@@ -281,6 +327,7 @@ fn merge_peaks(
     if two_thetas.is_empty() {
         return Ok((vec![], vec![], vec![], vec![]));
     }
+
     let mut merged_thetas      = Vec::new();
     let mut merged_intensities = Vec::new();
     let mut merged_hkls        = Vec::new();
@@ -306,6 +353,7 @@ fn merge_peaks(
             current_d         = d_hkls[i];
         }
     }
+
     merged_thetas.push(current_theta);
     merged_intensities.push(current_intensity);
     merged_hkls.push(current_hkls);
@@ -314,7 +362,6 @@ fn merge_peaks(
     Ok((merged_thetas, merged_intensities, merged_hkls, merged_d_hkls))
 }
 
-/// Normalize intensities
 #[pyfunction]
 fn normalize_intensities(intensities: Vec<f64>, max_value: f64) -> PyResult<Vec<f64>> {
     if intensities.is_empty() {
@@ -330,10 +377,10 @@ fn normalize_intensities(intensities: Vec<f64>, max_value: f64) -> PyResult<Vec<
     Ok(intensities.iter().map(|&i| (i / max_intensity) * max_value).collect())
 }
 
-/// Python module definition
 #[pymodule]
 fn xrd_rust_accelerator(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_unique_families_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(generate_hkl_points, m)?)?;
     m.add_function(wrap_pyfunction!(calculate_xrd_intensities, m)?)?;
     m.add_function(wrap_pyfunction!(merge_peaks, m)?)?;
     m.add_function(wrap_pyfunction!(normalize_intensities, m)?)?;
