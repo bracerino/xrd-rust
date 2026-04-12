@@ -67,7 +67,9 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
 
     AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
-    def __init__(self, wavelength="CuKa", symprec: float = 0, debye_waller_factors=None):
+    def __init__(self, wavelength="CuKa", symprec: float = 0,
+                 debye_waller_factors=None, parallel: bool = False,
+                 num_threads: int = 0, use_simd: bool = True):
         if isinstance(wavelength, (float, int)):
             self.wavelength = wavelength
         elif isinstance(wavelength, str):
@@ -75,10 +77,13 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
             self.wavelength = WAVELENGTHS[wavelength]
         else:
             raise TypeError(f"wavelength must be float, int, or str")
-        
+
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
-        
+        self.parallel = parallel
+        self.num_threads = num_threads
+        self.use_simd = use_simd
+
         if not HAS_RUST:
             raise ImportError(
                 "Rust accelerator not installed. Install with:\n"
@@ -107,9 +112,15 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
 
         _zs = []
         _coeffs = []
-        _frac_coords = []
         _occus = []
         _dw_factors = []
+
+        # SoA: three flat contiguous arrays instead of list of [x, y, z] lists
+        # This allows the CPU to load all x-values, y-values, z-values
+        # in contiguous cache lines — much more efficient for SIMD and prefetching
+        _frac_coords_x = []
+        _frac_coords_y = []
+        _frac_coords_z = []
 
         for site in structure:
             for sp, occu in site.species.items():
@@ -122,15 +133,18 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
                     )
                 _coeffs.append(c)
                 _dw_factors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                _frac_coords.append(site.frac_coords.tolist())
+                # SoA: store x, y, z in separate flat arrays
+                _frac_coords_x.append(float(site.frac_coords[0]))
+                _frac_coords_y.append(float(site.frac_coords[1]))
+                _frac_coords_z.append(float(site.frac_coords[2]))
                 _occus.append(occu)
 
         hkls = []
         g_hkls = []
         d_hkls_list = []
-        
+
         for hkl, g_hkl, ind, _ in sorted(
-            recip_pts, 
+            recip_pts,
             key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])
         ):
             hkl_rounded = [float(round(i)) for i in hkl]
@@ -142,11 +156,16 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
             hkls=hkls,
             g_hkls=g_hkls,
             wavelength=wavelength,
-            frac_coords=_frac_coords,
+            frac_coords_x=_frac_coords_x,
+            frac_coords_y=_frac_coords_y,
+            frac_coords_z=_frac_coords_z,
             atomic_numbers=_zs,
             scattering_coeffs=_coeffs,
             occupancies=_occus,
             dw_factors=_dw_factors,
+            parallel=self.parallel,
+            num_threads=self.num_threads,
+            use_simd=self.use_simd,
         )
 
         two_thetas = []
@@ -157,10 +176,10 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
         for idx, (two_theta, intensity) in enumerate(results):
             if intensity > self.SCALED_INTENSITY_TOL:
                 hkl = [int(h) for h in hkls[idx]]
-                
+
                 if is_hex:
                     hkl = [hkl[0], hkl[1], -hkl[0] - hkl[1], hkl[2]]
-                
+
                 two_thetas.append(two_theta)
                 intensities.append(intensity)
                 hkls_int.append(hkl)
@@ -175,7 +194,7 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
                 self.TWO_THETA_TOL,
             )
             two_thetas, intensities, hkls_groups, d_hkls_final = merged_data
-            
+
             formatted_hkls = []
             for hkl_group in hkls_groups:
                 hkl_tuples = [h for h in hkl_group]
@@ -194,8 +213,8 @@ class XRDCalculatorRust(AbstractDiffractionPatternCalculator):
             formatted_hkls,
             list(d_hkls_final),
         )
-        
+
         if scaled and len(intensities) > 0:
             xrd.normalize(mode="max", value=100)
-        
+
         return xrd
