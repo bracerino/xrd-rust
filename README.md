@@ -3,7 +3,16 @@ Compute powder X-ray diffraction (XRD) patterns using modified [pymatgen’s XRD
 
 The XRD-Rust follows the same notation as the XRDCalculator, with the only change being the renamed class, XRDCalculatorRust. Due to this, it can be easily implemented into existing workflows that use the original pymatgen package for powder XRD pattern calculations. Simply import the XRD-Rust package and replace the class name (see also example below).
 
-
+```python
+XRDCalculatorRust(
+    wavelength   = "CuKa",   # str or float — radiation wavelength
+    symprec      = 0,         # float — symmetry precision in Angstroms (0 = disabled)
+    debye_waller_factors = None,
+    parallel     = False,     # bool  — enable multi-threaded execution via Rayon
+    num_threads  = 4,         # int   — number of threads (only used if parallel=True)
+    use_simd     = True,      # bool  — enable SIMD vectorization via AVX2
+)
+```
 
 Benchmark results (2θ range = 2–60° (Mo radiation)) on two large crystallographic datasets demonstrate the following acceleration:
 
