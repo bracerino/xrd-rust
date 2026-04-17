@@ -43,6 +43,7 @@ Install the package:
 pip install xrd-rust
 ```
 ## Example: Calculate powder XRD pattern
+The following example loads a crystal structure from a CIF file ('structure.cif') and calculates its powder XRD pattern using the Rust-accelerated calculator. The pattern is computed with Cu Kα radiation over a 2θ range of 5 - 70°, with intensities normalized to a maximum of 100. Symmetry refinement is disabled (symprec=0), meaning the structure is used exactly as provided, without refining atomic positions for the found space group. The calculations are parallelized across 4 threads via the Rayon library and further accelerated using SIMD vectorization. The resulting pattern, including 2θ positions, normalized intensities, Miller indices, and reflection multiplicities, is saved to a CSV file.  
 
 ```python
 from pymatgen.core import Structure
