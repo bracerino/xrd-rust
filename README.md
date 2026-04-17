@@ -10,7 +10,7 @@ XRDCalculatorRust(
     debye_waller_factors = None,
     parallel     = False,     # bool  — enable multi-threaded execution via Rayon
     num_threads  = 4,         # int   — number of threads (only used if parallel=True)
-    use_simd     = True,      # bool  — enable SIMD vectorization via AVX2
+    use_simd     = True,      # bool  — enable SIMD vectorization
 )
 ```
 
