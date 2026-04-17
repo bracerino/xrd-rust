@@ -33,10 +33,12 @@ If you like the package, please cite:
 ```bash
 python -m venv xrd-rust_venv  
 source xrd-rust_venv/bin/activate  # On Windows use: xrd-rust_venv\Scripts\Activate.ps1
+```
 
 Install the package:
+```bash
 pip install xrd-rust
-
+```
 ## Example: Calculate powder XRD pattern
 
 ```python
