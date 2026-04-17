@@ -50,7 +50,8 @@ from xrd_rust_calculator import XRDCalculatorRust
 
 # Load structure and calculate powder XRD pattern
 structure = Structure.from_file("structure.cif")
-calc = XRDCalculatorRust(wavelength="CuKa")
+calc = XRDCalculatorRust(wavelength="CuKa", symprec = 0,
+    parallel = True, num_threads  = 4, use_simd = True)
 pattern = calc.get_pattern(structure, scaled=False, two_theta_range=(5, 70))
 
 # Save to file
