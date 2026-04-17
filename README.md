@@ -31,7 +31,7 @@ If you like the package, please cite:
 - For pymatgen: ONG, Shyue Ping, et al. Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis. Computational Materials Science, 2013, 68: 314-319.  
 
 ## How to install XRD-Rust
-Tested on: Python 3.10, 3.12, 3.13  
+**Tested on: Python 3.10, 3.12, 3.13**    
 *(Optional but recommended)* Create and activate a virtual environment to avoid potential dependency conflicts:
 
 ```bash
