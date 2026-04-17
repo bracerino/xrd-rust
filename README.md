@@ -56,8 +56,10 @@ pattern = calc.get_pattern(structure, scaled=False, two_theta_range=(5, 70))
 
 # Save to file
 with open("xrd_pattern.csv", 'w') as f:
-    f.write("2theta,intensity,hkl\n")
+    f.write("2theta,intensity,hkl,multiplicity\n")
     for i in range(len(pattern.x)):
-        hkl = str([tuple(h['hkl']) for h in pattern.hkls[i]])
-        f.write(f"{pattern.x[i]},{pattern.y[i]},{hkl}\n")
+        hkl_list = [tuple(h['hkl']) for h in pattern.hkls[i]]
+        hkl_str  = str(hkl_list)
+        mult     = sum(h['multiplicity'] for h in pattern.hkls[i])
+        f.write(f"{pattern.x[i]},{pattern.y[i]},{hkl_str},{mult}\n")
 ```
