@@ -1,6 +1,6 @@
 # XRD-Rust
 **Updated benchmarks are in preparation**.  
-Compute powder X-ray diffraction (XRD) patterns using modified [pymatgen’s XRDCalculator](https://pymatgen.org/pymatgen.analysis.diffraction.html), with the performance-critical routines reimplemented in Rust, achieving typically more than ⚡ 10× speedup. The larger and more complex your structure (more peaks and atoms), the greater the speedup gains.
+Compute powder X-ray diffraction (XRD) patterns using modified [pymatgen’s XRDCalculator](https://pymatgen.org/pymatgen.analysis.diffraction.html), with the performance-critical routines reimplemented in Rust, achieving typically more than ⚡10× speedup. The larger and more complex your structure (more peaks and atoms), the greater the speedup gains.
 
 The XRD-Rust follows the same notation as the XRDCalculator, with the only change being the renamed class, XRDCalculatorRust. Due to this, it can be easily implemented into existing workflows that use the original pymatgen package for powder XRD pattern calculations. Simply import the XRD-Rust package and replace the class name (see also example below).
 
@@ -20,9 +20,9 @@ XRDCalculatorRust(
 ## Benchmarks
 Benchmark results (2θ range = 2–60° (Mo radiation),  serial mode, SIMD) on two large crystallographic datasets demonstrate the following acceleration:
 
-- COD (515 181 structures): ⚡ 10.7× median speedup (MAD 4.2×)  
+- COD (515 181 structures): ⚡10.7× median speedup (MAD 4.2×)  
 
-- MC3D (33 142 structures): ⚡ 12.6× median speedup (MAD 2.0×)
+- MC3D (33 142 structures): ⚡12.6× median speedup (MAD 2.0×)
 
 Full benchmarking details are available at:
 📖 https://arxiv.org/abs/2602.11709
