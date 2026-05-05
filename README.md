@@ -18,11 +18,11 @@ XRDCalculatorRust(
 
 ![XRD-Rust speed up](images/illu_1.png)
 ## Benchmarks
-Benchmark results (2θ range = 2–60° (Mo radiation)) on two large crystallographic datasets demonstrate the following acceleration:
+Benchmark results (2θ range = 2–60° (Mo radiation),  serial mode, SIMD) on two large crystallographic datasets demonstrate the following acceleration:
 
-- COD (515 181 structures): ⚡ 6.1 ± 4.6× average speedup, up to 719× faster (1437 min (original pymatgen implementation) → 2 min (Rust-accelerated))
+- COD (515 181 structures): ⚡ 10.7× median speedup (MAD 4.2×)  
 
-- MC3D (33 142 structures): ⚡ 4.7 ± 1.6× average speedup, up to 25× faster (34.9 s → 1.4 s)
+- MC3D (33 142 structures): ⚡ 12.6× median speedup (MAD 2.0×)
 
 Full benchmarking details are available at:
 📖 https://arxiv.org/abs/2602.11709
