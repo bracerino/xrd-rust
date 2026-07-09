@@ -25,11 +25,11 @@ Benchmark results (2θ range = 2–60° (Mo radiation),  serial mode, SIMD) on t
 - MC3D (33 142 structures): ⚡12.6× median speedup (MAD 2.0×)
 
 Full benchmarking details are available at:
-📖 https://arxiv.org/abs/2602.11709
+📖 https://doi.org/10.1107/S1600576726005273 (or https://arxiv.org/abs/2602.11709)
 
 If you like the package, please cite:
-- For XRD-Rust (arXiv): LEBEDA, Miroslav, et al. Rust-accelerated powder X-ray diffraction simulation for high-throughput and machine-learning-driven materials science. arXiv preprint arXiv:2602.11709, 2026.  
-- For pymatgen: ONG, Shyue Ping, et al. Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis. Computational Materials Science, 2013, 68: 314-319.  
+- For XRD-Rust: Lebeda, Miroslav, et al. Rust-accelerated powder X-ray diffraction simulation for high-throughput and machine-learning-driven materials science. Journal of Applied Crystallography, 2026, vol. 59, Part 4. DOI: 10.1107/S1600576726005273.
+- For pymatgen: Ong, Shyue Ping, et al. Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis. Computational Materials Science, 2013, 68: 314-319.  
 
 ## How to install XRD-Rust
 **Tested on: Python 3.10, 3.12, 3.13**    
