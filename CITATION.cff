@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the following article."
+title: "XRD-Rust"
+authors:
+  - family-names: Lebeda
+    given-names: Miroslav
+  - family-names: Drahokoupil
+    given-names: Jan
+  - family-names: Veřtát
+    given-names: Petr
+  - family-names: Vlčák
+    given-names: Petr
+
+version: 1.0.0
+identifiers:
+  - type: doi
+    value: 10.1107/S1600576726005273
+
+type: software
+url: "https://doi.org/10.1107/S1600576726005273"
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Lebeda
+      given-names: Miroslav
+    - family-names: Drahokoupil
+      given-names: Jan
+    - family-names: Veřtát
+      given-names: Petr
+    - family-names: Vlčák
+      given-names: Petr
+  title: "Rust-accelerated powder X-ray diffraction simulation for high-throughput and machine-learning-driven materials science"
+  journal: "Journal of Applied Crystallography"
+  volume: 59
+  issue: 4
+  year: 2026
+  doi: 10.1107/S1600576726005273
