@@ -27,8 +27,8 @@ Full benchmarking details are available at:
 📖 https://doi.org/10.1107/S1600576726005273 (or https://arxiv.org/abs/2602.11709)
 
 If you like the package, please cite:
-- For XRD-Rust: Lebeda, Miroslav, et al. [Rust-accelerated powder X-ray diffraction simulation for high-throughput and machine-learning-driven materials science](https://doi.org/10.1107/S1600576726005273). Journal of Applied Crystallography, 2026, vol. 59, Part 4. DOI: 10.1107/S1600576726005273.
-- For pymatgen: Ong, Shyue Ping, et al. [Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis](https://www.sciencedirect.com/science/article/abs/pii/S0927025612006295). Computational Materials Science, 2013, 68: 314-319.  
+- For **XRD-Rust**: Lebeda, Miroslav, et al. [Rust-accelerated powder X-ray diffraction simulation for high-throughput and machine-learning-driven materials science](https://doi.org/10.1107/S1600576726005273). Journal of Applied Crystallography, 2026, vol. 59, Part 4. DOI: 10.1107/S1600576726005273.
+- For **pymatgen**: Ong, Shyue Ping, et al. [Python Materials Genomics (pymatgen): A robust, open-source python library for materials analysis](https://www.sciencedirect.com/science/article/abs/pii/S0927025612006295). Computational Materials Science, 2013, 68: 314-319.  
 
 ## How to install XRD-Rust
 **Tested on: Python 3.10, 3.12, 3.13**    
