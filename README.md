@@ -19,7 +19,7 @@ XRDCalculatorRust(
 ## Benchmarks
 Benchmark results (2θ range = 2–60° (Mo radiation),  serial mode, SIMD) on two large crystallographic datasets demonstrate the following acceleration:
 
-- COD (515 181 structures): ⚡10.7× median speedup (MAD 4.2×)  
+- COD (515 181 structures): ⚡10.7× median speedup (median absolute deviation, MAD 4.2×)  
 
 - MC3D (33 142 structures): ⚡12.6× median speedup (MAD 2.0×)
 
