@@ -23,6 +23,8 @@ Benchmark results (2θ range = 2–60° (Mo radiation),  serial mode, SIMD) on t
 
 - MC3D (33 142 structures): ⚡12.6× median speedup (MAD 2.0×)
 
+![XRD-Rust speed ups](images/Speedup_binned_COD.png)
+
 Full benchmarking details are available at:
 📖 https://doi.org/10.1107/S1600576726005273 (or https://arxiv.org/abs/2602.11709)
 
